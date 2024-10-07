@@ -16,6 +16,18 @@ spec:
         app: fast-api-project
     spec:
       containers:
+        - name: postgre
+          image: postgres:13
+          env:
+            - name: POSTGRES_USER
+              value : postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_DB
+              value: postgres
+          ports:
+            - containerPort: 5432
+              protocol: TCP
         - name: fast-api-project
           image: anasch07/gl5-mini-project-devops
           imagePullPolicy: IfNotPresent
