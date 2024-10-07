@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: FastApiProject
+  labels:
+    app: FastApiProject
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: FastApiProject
+  template:
+    metadata:
+      name: FastApiProject
+      labels:
+        app: FastApiProject
+    spec:
+      containers:
+        - name: FastApiProject
+          image: anasch07/gl5-mini-project-devops
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+      restartPolicy: Always
+      
