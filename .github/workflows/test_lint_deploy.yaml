@@ -9,11 +9,27 @@ on:
       - main
 
 jobs:
-  lint-format-test-build:
+  checkout:
     runs-on: ubuntu-latest
-    env:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          cd fastapi-docker-app
+          poetry install
+
+  format:
+    runs-on: ubuntu-latest
+    needs: checkout
 
     steps:
       - name: Checkout code
@@ -34,27 +50,73 @@ jobs:
         continue-on-error: true
         run: |
           cd fastapi-docker-app
-          poetry run ruff . --fix  # Automatically fix issues
+          poetry run ruff . --fix
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: format
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          cd fastapi-docker-app
+          poetry install
 
       - name: Lint code with ruff
-        continue-on-error: true  # Allow linting to fail without blocking the workflow
+        continue-on-error: true
         run: |
           cd fastapi-docker-app
-          poetry run ruff .  # Run lint without auto-fixing
+          poetry run ruff .
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          cd fastapi-docker-app
+          poetry install
 
       - name: Run tests
         run: |
           cd fastapi-docker-app
           poetry run pytest
 
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Set up Docker buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Build and push API Docker image
         uses: docker/build-push-action@v5
