@@ -9,27 +9,8 @@ on:
       - main
 
 jobs:
-  checkout:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install poetry
-          cd fastapi-docker-app
-          poetry install
-
   format:
     runs-on: ubuntu-latest
-    needs: checkout
 
     steps:
       - name: Checkout code
@@ -47,14 +28,13 @@ jobs:
           poetry install
 
       - name: Format code with ruff
-        continue-on-error: true
+        continue-on-error: true  # Run without failing the job
         run: |
           cd fastapi-docker-app
           poetry run ruff . --fix
 
   lint:
     runs-on: ubuntu-latest
-    needs: format
 
     steps:
       - name: Checkout code
@@ -72,14 +52,13 @@ jobs:
           poetry install
 
       - name: Lint code with ruff
-        continue-on-error: true
+        continue-on-error: true  # Run without failing the job
         run: |
           cd fastapi-docker-app
           poetry run ruff .
 
   test:
     runs-on: ubuntu-latest
-    needs: lint
 
     steps:
       - name: Checkout code
@@ -103,7 +82,6 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: test
 
     steps:
       - name: Checkout code
