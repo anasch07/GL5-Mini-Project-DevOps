@@ -101,4 +101,4 @@ jobs:
         with:
           context: ./fastapi-docker-app
           push: true
-          tags: ${{ env.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
