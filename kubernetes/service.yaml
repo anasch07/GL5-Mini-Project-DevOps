@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: FastApiProject
+  name: fast-api-project
 spec:
   selector:
-    app: FastApiProject
+    app: fast-api-project
   ports:
     - protocol: TCP
       port: 8000

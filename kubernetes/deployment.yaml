@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: FastApiProject
+  name: fast-api-project
   labels:
-    app: FastApiProject
+    app: fast-api-project
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: FastApiProject
+      app: fast-api-project
   template:
     metadata:
-      name: FastApiProject
+      name: fast-api-project
       labels:
-        app: FastApiProject
+        app: fast-api-project
     spec:
       containers:
-        - name: FastApiProject
+        - name: fast-api-project
           image: anasch07/gl5-mini-project-devops
           imagePullPolicy: IfNotPresent
           ports:
