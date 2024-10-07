@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y build-essential
 
 RUN pip install --no-cache-dir poetry
 
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml  ./
 
 RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi
 
