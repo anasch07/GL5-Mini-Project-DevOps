@@ -9,7 +9,7 @@ This project is a simple task management API built with Python using the **FastA
 
 The project is managed with **Poetry** for dependency management and uses **Alembic** for database migrations.
 
-## Features
+## Features 
 
 - **API Endpoints**:
   - `GET /tasks`: Fetch all tasks.
