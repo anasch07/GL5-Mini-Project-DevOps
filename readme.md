@@ -1,5 +1,3 @@
-
-
 # FastAPI Task Management API
 
 ## Project Overview
