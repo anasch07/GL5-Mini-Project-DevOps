@@ -16,7 +16,7 @@ spec:
         app: fast-api-project
     spec:
       containers:
-        - name: postgre
+        - name: postgres
           image: postgres:13
           env:
             - name: POSTGRES_USER
