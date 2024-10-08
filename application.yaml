@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/anasch07/GL5-Mini-Project-DevOps
     targetRevision: HEAD
-    path: kubernetes
+    path: base
 
   destination:
     server: https://kubernetes.default.svc
