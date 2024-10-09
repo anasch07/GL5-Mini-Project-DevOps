@@ -117,7 +117,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
   push:
-    needs: trivy-scan
+    needs: sonarQube
     runs-on: ubuntu-latest
 
     steps:
@@ -139,3 +139,21 @@ jobs:
           context: ./fastapi-docker-app
           push: true  # Push the image to DockerHub
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
+  sonarQube:
+    needs:
+      - trivy-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@v3
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
