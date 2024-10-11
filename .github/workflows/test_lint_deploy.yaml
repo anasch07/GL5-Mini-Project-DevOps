@@ -162,8 +162,6 @@ jobs:
           name: coverage-report
           path: fastapi-docker-app/coverage.xml
 
-      - name: Show coverage.xml content
-        run: cat fastapi-docker-app/coverage.xml
 
       - name: Run SonarQube analysis
         uses: sonarsource/sonarqube-scan-action@v3
