@@ -168,7 +168,7 @@ jobs:
 
       - name: Show coverage.xml content
         run: |
-          ls -l fastapi-docker-app/coverage.xml
+          ls -l
           cat fastapi-docker-app/coverage.xml
 
       - name: Run SonarQube analysis
