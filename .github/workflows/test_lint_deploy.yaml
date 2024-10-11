@@ -81,6 +81,7 @@ jobs:
         run: |
           cd fastapi-docker-app
           ls -R
+          cat coverage.xml
 
       - name: Upload coverage report for later steps
         uses: actions/upload-artifact@v3
@@ -162,11 +163,12 @@ jobs:
           name: coverage-report
           path: fastapi-docker-app/coverage.xml
 
+      - name: Show coverage.xml content
+        run: ls fastapi-docker-app/coverage.xml
+
 
       - name: Run SonarQube analysis
         uses: sonarsource/sonarqube-scan-action@v3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          coverage-report-path: fastapi-docker-app/coverage.xml
