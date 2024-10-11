@@ -161,10 +161,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: coverage-report
-          path: fastapi-docker-app/coverage.xml
+          path: coverage.xml
 
       - name: Show coverage.xml content
-        run: ls fastapi-docker-app/coverage.xml
+        run: ls fastapi-docker-app
 
 
       - name: Run SonarQube analysis
@@ -172,4 +172,3 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
