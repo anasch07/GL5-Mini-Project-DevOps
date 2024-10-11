@@ -11,7 +11,6 @@ on:
 jobs:
   format:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,14 +27,13 @@ jobs:
           poetry install
 
       - name: Format code with ruff
-        continue-on-error: true  # Run without failing the job
+        continue-on-error: true
         run: |
           cd fastapi-docker-app
           poetry run ruff . --fix
 
   lint:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,14 +50,13 @@ jobs:
           poetry install
 
       - name: Lint code with ruff
-        continue-on-error: true  # Run without failing the job
+        continue-on-error: true
         run: |
           cd fastapi-docker-app
           poetry run ruff .
 
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -89,7 +86,6 @@ jobs:
   build:
     needs: [format, lint, test]
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -102,12 +98,11 @@ jobs:
         with:
           context: ./fastapi-docker-app
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
-          push: false  # Only build, do not push
+          push: false
 
   trivy-scan:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -125,7 +120,6 @@ jobs:
   push:
     needs: sonarQube
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -143,14 +137,13 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./fastapi-docker-app
-          push: true  # Push the image to DockerHub
+          push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
 
   sonarQube:
     needs:
       - trivy-scan
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
