@@ -163,12 +163,20 @@ jobs:
           name: coverage-report
           path: coverage.xml
 
-      - name: Show coverage.xml content
-        run: ls fastapi-docker-app
+      - name: Move coverage.xml to the correct location
+        run: mv coverage.xml fastapi-docker-app/coverage.xml
 
+      - name: Show coverage.xml content
+        run: |
+          ls -l fastapi-docker-app/coverage.xml
+          cat fastapi-docker-app/coverage.xml
 
       - name: Run SonarQube analysis
         uses: sonarsource/sonarqube-scan-action@v3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: "-Dsonar.python.coverage.reportPaths=fastapi-docker-app/coverage.xml"
+
+        
