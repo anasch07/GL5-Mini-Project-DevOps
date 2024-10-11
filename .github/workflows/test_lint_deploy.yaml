@@ -78,7 +78,7 @@ jobs:
       - name: Run tests and generate coverage report
         run: |
           cd fastapi-docker-app
-          poetry run pytest --cov=your_app_directory --cov-report=xml --cov-report=term-missing
+          poetry run pytest --cov=app --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage report for later steps
         uses: actions/upload-artifact@v3
