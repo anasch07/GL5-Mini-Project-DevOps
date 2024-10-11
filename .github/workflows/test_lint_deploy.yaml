@@ -161,11 +161,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: coverage-report
-          path: fastapi-docker-app
+          path: .
 
 
       - name: Show coverage.xml content
-        run: cat fastapi-docker-app/coverage.xml
+        run: cat coverage.xml
 
       - name: Run SonarQube analysis
         uses: sonarsource/sonarqube-scan-action@v3
