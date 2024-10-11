@@ -77,11 +77,17 @@ jobs:
           cd fastapi-docker-app
           poetry run pytest --cov=app --cov-report=xml --cov-report=term-missing
 
+      - name: List files after tests
+        run: |
+          cd fastapi-docker-app
+          ls -R
+
       - name: Upload coverage report for later steps
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
           path: fastapi-docker-app/coverage.xml
+
 
   build:
     needs: [format, lint, test]
