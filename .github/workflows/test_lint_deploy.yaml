@@ -161,26 +161,14 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: coverage-report
-          path: coverage.xml
+          path: fastapi-docker-app
 
-      - name: Ensure coverage.xml is not a directory
-        run: |
-          if [ -d fastapi-docker-app/coverage.xml ]; then
-            rm -rf fastapi-docker-app/coverage.xml
-          fi
-
-      - name: Move coverage.xml to the correct location
-        run: mv coverage.xml fastapi-docker-app/coverage.xml
 
       - name: Show coverage.xml content
-        run: cat fastapi-docker-app/coverage.xml
+        run: ls fastapi-docker-app
 
       - name: Run SonarQube analysis
         uses: sonarsource/sonarqube-scan-action@v3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          args: "-Dsonar.python.coverage.reportPaths=fastapi-docker-app/coverage.xml"
-
-        
