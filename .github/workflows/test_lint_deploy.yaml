@@ -147,3 +147,28 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
 
+  sonarQube:
+    needs:
+      - trivy-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-report
+          path: .
+
+
+      - name: Show coverage.xml content
+        run: ls -l
+
+      - name: Run SonarQube analysis
+        uses: sonarsource/sonarqube-scan-action@v3
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
