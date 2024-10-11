@@ -158,8 +158,8 @@ jobs:
 
       - name: Show coverage.xml content
         run: cat fastapi-docker-app/coverage.xml
-               
-               - name: Run SonarQube analysis
+
+      - name: Run SonarQube analysis
         uses: sonarsource/sonarqube-scan-action@v3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
