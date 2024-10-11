@@ -169,6 +169,7 @@ jobs:
       - name: Show coverage.xml content
         run: |
           ls -l
+          cat fastapi-docker-app/coverage.xml
       - name: Run SonarQube analysis
         uses: sonarsource/sonarqube-scan-action@v3
         env:
