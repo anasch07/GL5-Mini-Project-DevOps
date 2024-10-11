@@ -163,13 +163,18 @@ jobs:
           name: coverage-report
           path: coverage.xml
 
+      - name: Ensure coverage.xml is not a directory
+        run: |
+          if [ -d fastapi-docker-app/coverage.xml ]; then
+            rm -rf fastapi-docker-app/coverage.xml
+          fi
+
       - name: Move coverage.xml to the correct location
         run: mv coverage.xml fastapi-docker-app/coverage.xml
 
       - name: Show coverage.xml content
-        run: |
-          ls -l
-          cat fastapi-docker-app/coverage.xml
+        run: cat fastapi-docker-app/coverage.xml
+
       - name: Run SonarQube analysis
         uses: sonarsource/sonarqube-scan-action@v3
         env:
