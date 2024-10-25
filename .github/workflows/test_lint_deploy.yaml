@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  setup-and-test:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -32,29 +32,32 @@ jobs:
         run: |
           pip install poetry
           poetry install
+        working-directory: ./fastapi-docker-app  # Assuming the checkout path is the repo root
 
       - name: Format code
-        continue-on-error: true
         run: |
           poetry run ruff . --fix
+        working-directory: ./fastapi-docker-app
 
       - name: Lint code
-        continue-on-error: true
         run: |
           poetry run ruff .
+        working-directory: ./fastapi-docker-app
 
       - name: Run tests
         run: |
           poetry run pytest --cov=app --cov-report=xml --cov-report=term-missing
+        working-directory: ./fastapi-docker-app
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
           path: coverage.xml
+        working-directory: ./fastapi-docker-app
 
   build-and-scan:
-    needs: setup-and-test
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -66,6 +69,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build . --file Dockerfile --tag my-image:latest
+        working-directory: ./fastapi-docker-app
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.20.0
@@ -76,6 +80,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+        working-directory: ./fastapi-docker-app
 
   deploy:
     needs: build-and-scan
@@ -89,9 +94,11 @@ jobs:
         with:
           name: coverage-report
           path: .
+        working-directory: ./fastapi-docker-app
 
       - name: Display coverage report
         run: cat coverage.xml
+        working-directory: ./fastapi-docker-app
 
       - name: Push Docker image
         uses: docker/build-push-action@v5
@@ -99,4 +106,4 @@ jobs:
           context: .
           tags: 'my-image:latest'
           push: true
-          loaders: type=docker,dest=/tmp/my-image.tar
+        working-directory: ./fastapi-docker-app
