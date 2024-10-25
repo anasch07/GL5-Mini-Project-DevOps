@@ -106,6 +106,7 @@ jobs:
           context: ./fastapi-docker-app
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
           push: false
+          no-cache: true
 
   trivy-scan:
     needs: build
