@@ -32,7 +32,7 @@ jobs:
         run: |
           pip install poetry
           poetry install
-        working-directory: ./fastapi-docker-app  # Assuming the checkout path is the repo root
+        working-directory: ./fastapi-docker-app
 
       - name: Format code
         run: |
