@@ -91,7 +91,7 @@ jobs:
 
 
   build:
-    needs: [format, lint, sonarQube]
+    needs: [format, lint, test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -125,7 +125,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
   push:
-    needs: trivy-scan
+    needs: sonarQube
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -149,7 +149,7 @@ jobs:
 
   sonarQube:
     needs:
-      - test
+      - trivy-scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
