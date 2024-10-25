@@ -91,7 +91,7 @@ jobs:
 
 
   build:
-    needs: [format, lint, sonarQube]
+    needs: [format, lint, test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -117,6 +117,9 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.20.0
+        env:
+          TRIVY_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-db"
+          TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db"
         with:
           image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest'
           format: 'table'
@@ -125,8 +128,9 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
+
   push:
-    needs: trivy-scan
+    needs: sonarQube
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -150,7 +154,7 @@ jobs:
 
   sonarQube:
     needs:
-      - test
+      - trivy-scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

@@ -13,6 +13,7 @@ psycopg2-binary = "^2.9.9"
 alembic = "^1.13.3"
 pydantic = "^2.9.2"
 setuptools = "^75.1.0"
+starlette = "^0.40.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest-cov = "^3.0.0"
