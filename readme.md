@@ -1,219 +1,224 @@
-# FastAPI Task Management API
+# FastAPI Task Management API with DevOps Pipeline
 
-## Project Overview
+## Overview
 
-This project is a simple task management API built with Python using the **FastAPI** framework. It allows users to create and retrieve tasks through a RESTful API. The application is containerized using Docker and orchestrated with Docker Compose, consisting of two services:
+This project is a **Task Management API** built using **FastAPI**. It features a containerized setup with **Docker** and integrates a robust CI/CD pipeline. The goal is to provide hands-on experience with modern DevOps practices while delivering a scalable and maintainable application.
 
-- **api**: The FastAPI application.
-- **db**: A PostgreSQL database with persistent data volume.
+---
 
-The project is managed with **Poetry** for dependency management and uses **Alembic** for database migrations.
+## Goal of this TP
 
-## Features 
+This project aims to:
 
-- **API Endpoints**:
-  - `GET /tasks`: Fetch all tasks.
-  - `POST /tasks`: Create a new task.
-- **Task Model**:
-  - `id`: Integer, unique identifier for the task.
-  - `name`: String, name of the task.
-  - `completion_status`: Boolean, indicates if the task is completed.
+- Demonstrate how to set up and configure a complete DevOps pipeline.
+- Incorporate tools like **SonarQube** for code quality and **Trivy** for vulnerability scanning.
+- Automate testing, linting, formatting, and deployment processes.
+- Provide practical exposure to CI/CD tools such as **GitHub Actions**.
 
-## Prerequisites
+---
 
-- [Docker](https://www.docker.com/get-started)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+## Setup
 
-## Getting Started
+### Prerequisites
 
-### Build and Run the Application
+1. Install **Docker** and **Docker Compose**:
+   - [Get Docker](https://www.docker.com/get-started)
+   - [Install Docker Compose](https://docs.docker.com/compose/install/)
 
-Use the provided **Makefile** to build and start the application:
+2. **Set up SonarQube server**:
+   - Use the following `docker-compose.yml` to deploy a local SonarQube server:
+     ```yaml
+     version: "3"
+     services:
+       sonarqube:
+         image: sonarqube:latest
+         container_name: sonarqube
+         ports:
+           - "9000:9000"
+         volumes:
+           - sonarqube_data:/opt/sonarqube/data
+           - sonarqube_logs:/opt/sonarqube/logs
+           - sonarqube_extensions:/opt/sonarqube/extensions
+     volumes:
+       sonarqube_data:
+       sonarqube_logs:
+       sonarqube_extensions:
+     ```
 
-```bash
-make up
+   - Run the server:
+     ```bash
+     docker-compose up -d
+     ```
+
+   - Access SonarQube at `http://localhost:9000`.
+
+3. Generate a **SonarQube token** for CI/CD integration.
+
+---
+
+## Installation
+
+### Local Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repo_url>
+   cd fastapi-docker-app
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install poetry
+   poetry install
+   ```
+
+3. Run the development server:
+   ```bash
+   poetry run uvicorn app.main:app --reload
+   ```
+
+### Dockerized Installation
+
+1. Build and start the application:
+   ```bash
+   docker-compose up --build
+   ```
+
+2. Access the application at `http://localhost:8000`.
+
+---
+
+## Directory Structure
+
+```
+fastapi-docker-app/
+├── app/
+│   ├── main.py           # Entry point of the application
+│   ├── models.py         # Database models
+│   └── routes.py         # API routes
+├── tests/                # Test cases
+├── Dockerfile            # Docker configuration
+├── docker-compose.yml    # Docker Compose setup
+├── pyproject.toml        # Poetry configuration
+└── README.md             # Documentation
 ```
 
-This command will:
+---
 
-- Build the Docker images.
-- Start both the `api` and `db` services defined in `docker-compose.yml`.
+## Development Guide
 
-Alternatively, you can use Docker Compose directly:
+### Linting and Formatting
 
-```bash
-docker-compose up --build
-```
+This project uses **ruff** for linting and formatting.
 
-### Access the API
-
-The API will be accessible at `http://localhost:8000`.
-
-## API Documentation
-
-Interactive API documentation is available via Swagger UI:
-
-- Open your web browser and navigate to `http://localhost:8000/docs`.
-
-## API Endpoints
-
-### GET /tasks
-
-Retrieve all tasks.
-
-- **URL**: `/tasks`
-- **Method**: `GET`
-- **Response**: A JSON array of task objects.
-
-**Example Request**
-
-```bash
-curl -X GET http://localhost:8000/tasks
-```
-
-**Example Response**
-
-
-```json
-[
-  {
-    "id": 1,
-    "name": "First Task",
-    "completion_status": false
-  },
-  {
-    "id": 2,
-    "name": "Second Task",
-    "completion_status": true
-  }
-]
-```
-
-### POST /tasks
-
-Create a new task.
-
-- **URL**: `/tasks`
-- **Method**: `POST`
-- **Request Body**: A JSON object with `name` and `completion_status`.
-
-**Example Request**
-
-```bash
-curl -X POST http://localhost:8000/tasks \
-     -H "Content-Type: application/json" \
-     -d '{
-           "name": "New Task",
-           "completion_status": false
-         }'
-```
-
-**Example Response**
-
-```json
-{
-  "id": 3,
-  "name": "New Task",
-  "completion_status": false
-}
-```
-
-
-## Dependency Management
-
-The project uses **Poetry** for dependency management.
-
-- **pyproject.toml**: Contains project metadata and dependencies.
-- **poetry.lock**: Locks the versions of the dependencies.
-
-### Installing Dependencies Manually
-
-If you need to install dependencies manually (outside of Docker), you can use Poetry:
-
-```bash
-poetry install
-```
-
-## Database Migrations
-
-The project uses **Alembic** for database migrations.
-
-### Generating Migrations
-
-To generate a new migration after modifying models, use the Makefile command:
-
-```bash
-make migrate
-```
-
-Or directly with Docker Compose:
-
-```bash
-docker-compose exec api alembic revision --autogenerate -m "Migration message"
-```
-
-### Applying Migrations
-
-To apply migrations, use:
-
-```bash
-make migrate
-```
-
-Or:
-
-```bash
-docker-compose exec api alembic upgrade head
-```
-
-**Note**: The initial migration is already created and applied when you start the application with Docker Compose.
-
-## Running Tests
-
-Unit tests are included in the `tests/` directory. To run the tests, use:
-
-```bash
-make test
-```
-
-This command will:
-
-- Run the tests using `pytest`.
-- Use a test database to avoid affecting the development database.
-
-Alternatively, you can run:
-
-```bash
-poetry run pytest
-```
-
-### Test Coverage
-
-Ensure that your code is properly tested by running the tests after making changes.
-
-## Stopping the Application
-
-To stop the application and remove containers, networks, and volumes, use:
-
-```bash
-make down
-```
-
-Or directly:
-
-```bash
-docker-compose down
-```
-
-- This will stop the containers but **will not** delete the persistent data volume for PostgreSQL.
-
-## Persistent Data Volume
-
-- The PostgreSQL database uses a Docker volume (`postgres_data`) to persist data.
-- Data will not be lost when bringing the containers down and up again.
-- To delete the data volume (and all data), run:
-
+- To check for issues:
   ```bash
-  docker-compose down --volumes
+  poetry run ruff .
   ```
+
+- To fix issues automatically:
+  ```bash
+  poetry run ruff . --fix
+  ```
+
+### Writing and Running Tests
+
+Unit tests are written using **pytest**.
+
+- Run all tests:
+  ```bash
+  poetry run pytest
+  ```
+
+- Generate a coverage report:
+  ```bash
+  poetry run pytest --cov=app
+  ```
+
+---
+
+## CI/CD Workflow Overview
+
+### Pipeline Overview
+
+This project uses **GitHub Actions** to automate the CI/CD pipeline.
+
+### Jobs Breakdown
+
+#### 1. Lint, Format, Test
+- Runs `ruff` for linting and formatting.
+- Executes `pytest` for unit tests.
+
+#### 2. Security Scan (Trivy)
+- Scans the codebase and Docker image for vulnerabilities.
+
+#### 3. Code Quality (SonarQube)
+- Analyzes code quality metrics and generates reports in SonarQube.
+
+#### 4. Build and Push Docker Image
+- Builds a Docker image for the application.
+- Pushes the image to DockerHub.
+
+---
+
+## Security and Quality
+
+### Vulnerability Scanning with Trivy
+
+- Trivy scans the source code and Docker images for vulnerabilities.
+- Output includes critical and high-severity vulnerabilities.
+
+### Code Quality Metrics with SonarQube
+
+- Identifies bugs, code smells, and security vulnerabilities.
+- Provides actionable recommendations for code improvement.
+
+---
+
+## Deployment
+
+### Docker Image Build and Push
+
+- Docker image is built and pushed to **DockerHub** as part of the pipeline.
+
+### Running the Application with Docker
+
+- Start the application:
+  ```bash
+  docker-compose up
+  ```
+
+- Stop the application:
+  ```bash
+  docker-compose down
+  ```
+
+---
+
+## Contributing
+
+### Contribution Guidelines
+
+1. Fork the repository and create a new branch:
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+
+2. Commit your changes:
+   ```bash
+   git commit -m "Add your message here"
+   ```
+
+3. Push to your branch:
+   ```bash
+   git push origin feature/your-feature
+   ```
+
+4. Create a pull request.
+
+### Pull Request and Code Review Process
+
+- Ensure all tests pass before submitting a pull request.
+- Address feedback from reviewers promptly.
+- Follow the coding standards defined in the project.
 
