@@ -6,27 +6,22 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from app.database import Base
+from app.main import app, get_db  # Move these to the top
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.database import Base
-from app.main import app, get_db
-
-# use a test database, e.g., an SQLite database
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
-# create the engine
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
 
-# create a configured "Session" class
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# create the test database tables
 Base.metadata.create_all(bind=engine)
 
 
-# dependency override
 def override_get_db():
     try:
         db = TestingSessionLocal()
