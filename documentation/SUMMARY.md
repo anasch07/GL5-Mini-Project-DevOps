@@ -24,10 +24,6 @@
 - [Vulnerability Scanning with Trivy](security-quality/vulnerability-scanning.md)
 - [Code Quality Metrics with SonarQube](security-quality/code-quality-metrics.md)
 
-## Deployment
-- [Docker Image Build and Push](deployment/docker-image.md)
-- [Running the Application with Docker](deployment/running-application.md)
-
 ## Contributing
 - [Contribution Guidelines](contributing/guidelines.md)
 - [Pull Request Process](contributing/pull-request.md)
