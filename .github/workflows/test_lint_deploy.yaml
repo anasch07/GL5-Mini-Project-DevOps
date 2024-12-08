@@ -82,7 +82,7 @@ jobs:
           path: fastapi-docker-app/coverage.xml
 
   trivy-scan:
-    needs: test
+    needs: [lint, format, test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
