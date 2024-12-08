@@ -12,7 +12,7 @@ To set up the application on your local machine, follow these steps:
 First, clone the project repository to your local system:
 ```bash
 git clone https://github.com/anasch07/GL5-Mini-Project-DevOps.git
-```
+
 cd GL5-Mini-Project-DevOps/fastapi-docker-app
 ```
 
