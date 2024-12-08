@@ -1,4 +1,4 @@
-name: Lint, Format, Test, Build, and Scan Docker Images
+name: Test, Lint, SonarQube, Trivy Scan, Build and Push
 
 on:
   push:
@@ -50,7 +50,6 @@ jobs:
           poetry install
 
       - name: Lint code with ruff
-        continue-on-error: true
         run: |
           cd fastapi-docker-app
           poetry run ruff .
@@ -77,21 +76,48 @@ jobs:
           cd fastapi-docker-app
           poetry run pytest --cov=app --cov-report=xml --cov-report=term-missing
 
-      - name: List files after tests
-        run: |
-          cd fastapi-docker-app
-          ls -R
-          cat coverage.xml
-
-      - name: Upload coverage report for later steps
+      - name: Upload coverage report for SonarQube
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
           path: fastapi-docker-app/coverage.xml
 
+  sonarQube:
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-report
+
+      - name: Run SonarQube analysis
+        uses: sonarsource/sonarqube-scan-action@v3
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=fastapi-docker-app
+            -Dsonar.coverageReportPaths=fastapi-docker-app/coverage.xml
+
+  trivy-scan:
+    needs: sonarQube
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest"
+          format: "table"
 
   build:
-    needs: [format, lint, test]
+    needs: [trivy-scan]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -107,30 +133,8 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
           push: false
 
-  trivy-scan:
-    needs: build
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.20.0
-        env:
-          TRIVY_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-db"
-          TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db"
-        with:
-          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest'
-          format: 'table'
-#          exit-code: '0'
-          ignore-unfixed: true
-#          vuln-type: 'os,library'
-#          severity: 'CRITICAL,HIGH'
-
-
   push:
-    needs: sonarQube
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -151,29 +155,3 @@ jobs:
           context: ./fastapi-docker-app
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
-
-  sonarQube:
-    needs:
-      - trivy-scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download coverage report
-        uses: actions/download-artifact@v3
-        with:
-          name: coverage-report
-          path: .
-
-
-      - name: Show coverage.xml content
-        run: ls -l
-
-      - name: Run SonarQube analysis
-        uses: sonarsource/sonarqube-scan-action@v3
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
