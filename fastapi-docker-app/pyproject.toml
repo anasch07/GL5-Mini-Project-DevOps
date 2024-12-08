@@ -22,7 +22,12 @@ pytest = "^8.3.3"
 httpx = "^0.27.2"
 ruff = "^0.0.289"
 flake8 = "^6.0.0"
+isort = "^5.13.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+skip = ["alembic/env.py", "alembic/versions"]

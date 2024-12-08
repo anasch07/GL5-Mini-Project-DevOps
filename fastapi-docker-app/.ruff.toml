@@ -1,4 +1,5 @@
 line-length = 120
+exclude = ["alembic/versions/*.py", "alembic/env.py"]
 
 select = [
     "E",    # pycodestyle
@@ -9,8 +10,8 @@ select = [
     "C4",   # flake8-comprehensions
     "UP"    # pyupgrade
 ]
-
 ignore = []
 
 [per-file-ignores]
-"__init__.py" = ["F401"]
+"alembic/versions/*.py" = ["ALL"]
+"alembic/env.py" = ["ALL"]
