@@ -1,4 +1,4 @@
-name: Lint, Format, Test, Build, and Scan Docker Images
+name: Lint, Format, Test, Scan, Build, and Push Docker Images
 
 on:
   push:
@@ -9,29 +9,6 @@ on:
       - main
 
 jobs:
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install poetry
-          cd fastapi-docker-app
-          poetry install
-
-      - name: Format code with ruff
-        continue-on-error: true
-        run: |
-          cd fastapi-docker-app
-          poetry run ruff . --fix
-
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -50,10 +27,31 @@ jobs:
           poetry install
 
       - name: Lint code with ruff
-        continue-on-error: true
         run: |
           cd fastapi-docker-app
           poetry run ruff .
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          cd fastapi-docker-app
+          poetry install
+
+      - name: Format code with ruff
+        run: |
+          cd fastapi-docker-app
+          poetry run ruff . --fix
 
   test:
     runs-on: ubuntu-latest
@@ -77,38 +75,14 @@ jobs:
           cd fastapi-docker-app
           poetry run pytest --cov=app --cov-report=xml --cov-report=term-missing
 
-      - name: List files after tests
-        run: |
-          cd fastapi-docker-app
-          ls -R
-          cat coverage.xml
-
       - name: Upload coverage report for later steps
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
           path: fastapi-docker-app/coverage.xml
 
-
-  build:
-    needs: [format, lint, test]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./fastapi-docker-app
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
-          push: false
-
   trivy-scan:
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -126,9 +100,46 @@ jobs:
             --ignore-unfixed \
             --format table
 
+  sonarQube:
+    needs: trivy-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-report
+          path: .
+
+      - name: Run SonarQube analysis
+        uses: sonarsource/sonarqube-scan-action@v3
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+  build:
+    needs: sonarQube
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./fastapi-docker-app
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
+          push: false
 
   push:
-    needs: sonarQube
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -149,29 +160,3 @@ jobs:
           context: ./fastapi-docker-app
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/gl5-mini-project-devops:latest
-
-  sonarQube:
-    needs:
-      - trivy-scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download coverage report
-        uses: actions/download-artifact@v3
-        with:
-          name: coverage-report
-          path: .
-
-
-      - name: Show coverage.xml content
-        run: ls -l
-
-      - name: Run SonarQube analysis
-        uses: sonarsource/sonarqube-scan-action@v3
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
